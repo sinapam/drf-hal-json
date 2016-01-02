@@ -67,7 +67,9 @@ class HalModelSerializer(NestedFieldsSerializerMixin, ModelSerializer):
                 fields = [api_settings.URL_FIELD_NAME] + link_field_names
 
             def get_fields(self):
-                return link_fields
+                fields = super().get_fields()
+                fields.update(link_fields)
+                return fields
 
         return HalNestedLinksSerializer(instance=self.instance, source="*")
 
@@ -87,7 +89,9 @@ class HalModelSerializer(NestedFieldsSerializerMixin, ModelSerializer):
                 depth = embedded_depth
 
             def get_fields(self):
-                return embedded_fields
+                fields = super().get_fields()
+                fields.update(embedded_fields)
+                return fields
 
         return HalNestedEmbeddedSerializer(source="*")
 
