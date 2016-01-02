@@ -4,7 +4,6 @@ from rest_framework.fields import empty
 from rest_framework.relations import RelatedField, ManyRelatedField, HyperlinkedRelatedField
 from rest_framework.relations import HyperlinkedIdentityField
 from rest_framework.serializers import ModelSerializer, HyperlinkedModelSerializer, BaseSerializer
-from rest_framework.settings import api_settings
 from drf_nested_fields.serializers import NestedFieldsSerializerMixin
 
 from drf_hal_json import LINKS_FIELD_NAME, EMBEDDED_FIELD_NAME
@@ -27,6 +26,18 @@ class HalModelSerializer(NestedFieldsSerializerMixin, ModelSerializer):
         self.nested_serializer_class = self.__class__
         if data != empty and not LINKS_FIELD_NAME in data:
             data[LINKS_FIELD_NAME] = dict()  # put links in data, so that field validation does not fail
+
+    def get_default_field_names(self, declared_fields, model_info):
+        """
+        Return the default list of field names that will be used if the
+        `Meta.fields` option is not specified.
+        """
+        return (
+            [self.url_field_name] +
+            list(declared_fields.keys()) +
+            list(model_info.fields.keys()) +
+            list(model_info.forward_relations.keys())
+        )
 
     def get_fields(self):
         fields = super(HalModelSerializer, self).get_fields()
@@ -56,20 +67,15 @@ class HalModelSerializer(NestedFieldsSerializerMixin, ModelSerializer):
         return resulting_fields
 
     def _get_links_serializer(self, model_cls, link_fields):
-        link_field_names = list(link_fields.keys())
-
         class HalNestedLinksSerializer(self.links_serializer_class):
             serializer_related_field = self.serializer_related_field
             serializer_url_field = self.serializer_url_field
 
             class Meta:
                 model = model_cls
-                fields = [api_settings.URL_FIELD_NAME] + link_field_names
 
             def get_fields(self):
-                fields = super().get_fields()
-                fields.update(link_fields)
-                return fields
+                return link_fields
 
         return HalNestedLinksSerializer(instance=self.instance, source="*")
 
@@ -89,9 +95,7 @@ class HalModelSerializer(NestedFieldsSerializerMixin, ModelSerializer):
                 depth = embedded_depth
 
             def get_fields(self):
-                fields = super().get_fields()
-                fields.update(embedded_fields)
-                return fields
+                return embedded_fields
 
         return HalNestedEmbeddedSerializer(source="*")
 
