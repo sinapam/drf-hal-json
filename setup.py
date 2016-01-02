@@ -9,7 +9,7 @@ setup(
     description='Extension for Django REST Framework 3 which allows for using content-type application/hal-json',
     author='Sebastian Bredehöft',
     author_email='bredehoeft.sebastian@gmail.com',
-    packages=find_packages(exclude=['tests*']),
+    packages=find_packages(exclude=['test*']),
     install_requires=[
         'django>=1.6',
         'djangorestframework>=3.0.0',
