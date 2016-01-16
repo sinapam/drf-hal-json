@@ -109,10 +109,3 @@ class HalModelSerializer(NestedFieldsSerializerMixin, ModelSerializer):
     def _is_embedded_field(field):
         return isinstance(field, BaseSerializer)
 
-    @cached_property
-    def _writable_fields(self):
-        return super()._writable_fields + [
-            field for field in self.fields[LINKS_FIELD_NAME].fields.values()
-            if (not field.read_only) or (field.default is not empty)
-            ]
-
