@@ -81,7 +81,7 @@ class HalModelSerializer(NestedFieldsSerializerMixin, ModelSerializer):
         return HalNestedLinksSerializer(instance=self.instance, source="*")
 
     def _get_embedded_serializer(self, model_cls, embedded_depth, embedded_fields):
-        defined_nested_fields = getattr(self.Meta, "nested_fields", None)
+        defined_nested_fields = getattr(self.Meta, "nested_fields", [])
         nested_class = self.__class__
 
         embedded_field_names = list(embedded_fields.keys())

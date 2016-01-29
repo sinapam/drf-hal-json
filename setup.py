@@ -13,7 +13,7 @@ setup(
     install_requires=[
         'django>=1.6',
         'djangorestframework>=3.0.0',
-        'drf-nested-fields>=0.9.0'
+        'drf-nested-fields>=0.9.3'
     ],
     zip_safe=False,
     classifiers=[
