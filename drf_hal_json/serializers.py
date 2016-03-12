@@ -14,12 +14,17 @@ class HalEmbeddedSerializer(NestedFieldsSerializerMixin, ModelSerializer):
     pass
 
 
+class HalLinksSerializer(HyperlinkedModelSerializer):
+    def get_value(self, dictionary):
+        return dictionary.get(self.field_name, empty)
+
+
 class HalModelSerializer(NestedFieldsSerializerMixin, ModelSerializer):
     """
     Serializer for HAL representation of django models
     """
     serializer_related_field = HyperlinkedRelatedField
-    links_serializer_class = HyperlinkedModelSerializer
+    links_serializer_class = HalLinksSerializer
     embedded_serializer_class = HalEmbeddedSerializer
 
     def __init__(self, instance=None, data=empty, **kwargs):
@@ -78,7 +83,7 @@ class HalModelSerializer(NestedFieldsSerializerMixin, ModelSerializer):
             def get_fields(self):
                 return link_fields
 
-        return HalNestedLinksSerializer(instance=self.instance, source="*")
+        return HalNestedLinksSerializer(instance=self.instance, source="*", required=False)
 
     def _get_embedded_serializer(self, model_cls, embedded_depth, embedded_fields):
         defined_nested_fields = getattr(self.Meta, "nested_fields", [])
@@ -98,7 +103,7 @@ class HalModelSerializer(NestedFieldsSerializerMixin, ModelSerializer):
             def get_fields(self):
                 return embedded_fields
 
-        return HalNestedEmbeddedSerializer(source="*")
+        return HalNestedEmbeddedSerializer(source="*", required=False)
 
     @staticmethod
     def _is_link_field(field):
