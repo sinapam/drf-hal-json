@@ -28,10 +28,11 @@ class HalModelSerializer(NestedFieldsSerializerMixin, ModelSerializer):
     embedded_serializer_class = HalEmbeddedSerializer
 
     def __init__(self, instance=None, data=empty, **kwargs):
-        super(HalModelSerializer, self).__init__(instance, data, **kwargs)
+        hal_data = data.copy()
+        if hal_data != empty and not LINKS_FIELD_NAME in hal_data:
+            hal_data[LINKS_FIELD_NAME] = dict()  # put links in data, so that field validation does not fail
+        super(HalModelSerializer, self).__init__(instance, hal_data, **kwargs)
         self.nested_serializer_class = self.__class__
-        if data != empty and not LINKS_FIELD_NAME in data:
-            data[LINKS_FIELD_NAME] = dict()  # put links in data, so that field validation does not fail
 
     def get_default_field_names(self, declared_fields, model_info):
         """
