@@ -28,9 +28,13 @@ class HalModelSerializer(NestedFieldsSerializerMixin, ModelSerializer):
     embedded_serializer_class = HalEmbeddedSerializer
 
     def __init__(self, instance=None, data=empty, **kwargs):
-        hal_data = data.copy()
-        if hal_data != empty and not LINKS_FIELD_NAME in hal_data:
-            hal_data[LINKS_FIELD_NAME] = dict()  # put links in data, so that field validation does not fail
+        if data != empty:
+            hal_data = data.copy()
+            if hal_data != empty and not LINKS_FIELD_NAME in hal_data:
+                hal_data[LINKS_FIELD_NAME] = dict()  # put links in data, so that field validation does not fail
+        else:
+            # it's gonna be empty anyway
+            hal_data = data
         super(HalModelSerializer, self).__init__(instance, hal_data, **kwargs)
         self.nested_serializer_class = self.__class__
 
